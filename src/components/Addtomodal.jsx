@@ -93,7 +93,6 @@ const Todoview = () => {
             </button>
           </li>
 
-          {/* Page Number Buttons */}
           {Array.from({ length: totalPages }, (_, index) => (
             <li key={index}>
               <button
@@ -104,8 +103,6 @@ const Todoview = () => {
               </button>
             </li>
           ))}
-
-          {/* Next Page Button */}
           <li>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
