@@ -9,7 +9,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
   const [errors, setErrors] = useState({});
 
   const handleAddTodo = () => {
-    // Simple validation
     const newErrors = {};
 
     if (!title) newErrors.title = 'Title is required';
@@ -19,7 +18,7 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return; // Stop the form submission if there are errors
+      return; 
     }
 
     onAddTodo({ title, description, dueDate, tags: tags.split(',').map((tag) => tag.trim()) });
@@ -36,7 +35,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
           </Dialog.Title>
 
           <div className="mt-4 space-y-4">
-            {/* Title Input */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                 Title
@@ -51,7 +49,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
               {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
             </div>
 
-            {/* Description Input */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                 Description
@@ -66,7 +63,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
               {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
             </div>
 
-            {/* Due Date Input */}
             <div>
               <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
                 Due Date
@@ -81,7 +77,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
               {errors.dueDate && <p className="text-sm text-red-500">{errors.dueDate}</p>}
             </div>
 
-            {/* Tags Input */}
             <div>
               <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
                 Tags (comma-separated)
@@ -97,7 +92,6 @@ const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
             </div>
           </div>
 
-          {/* Modal Buttons */}
           <div className="mt-6 flex justify-end space-x-3">
             <button
               className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
