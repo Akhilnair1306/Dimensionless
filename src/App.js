@@ -1,5 +1,6 @@
 import React from 'react';
-import Todoview from './components/Todoview'; // Import Todoview component
+import Todoview from './components/Todoview';
+
 
 function App() {
   return (

@@ -1,134 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import TodoList from './TodoList';
-import AddTodoModal from './Addtomodal';
+import React, { useState } from 'react';
+import { Dialog } from '@headlessui/react';
 
-const Todoview = () => {
-  const [todos, setTodos] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1); // State for the current page
-  const todosPerPage = 4; // Increased the number of todos per page
+const AddTodoModal = ({ isOpen, onClose, onAddTodo }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [tags, setTags] = useState('');
+  const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        const response = await fetch('https://fakestoreapi.com/products?limit=10');
-        const data = await response.json();
-        setTodos(data);
-      } catch (error) {
-        console.error('Error fetching todos:', error);
-      }
-    };
+  const handleAddTodo = () => {
+    // Simple validation
+    const newErrors = {};
 
-    fetchTodos();
-  }, []);
+    if (!title) newErrors.title = 'Title is required';
+    if (!description) newErrors.description = 'Description is required';
+    if (!dueDate) newErrors.dueDate = 'Due date is required';
+    if (!tags) newErrors.tags = 'Tags are required';
 
-  const addTodo = (todo) => {
-    setTodos([...todos, { id: Date.now(), ...todo }]);
-  };
-
-  const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-
-  // Filter todos based on the search term
-  const filteredTodos = todos.filter(todo =>
-    todo.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Paginate filtered todos
-  const indexOfLastTodo = currentPage * todosPerPage;
-  const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-  const currentTodos = filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo);
-
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(filteredTodos.length / todosPerPage);
-
-  // Handle page change
-  const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
-      setCurrentPage(page);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // Stop the form submission if there are errors
     }
+
+    onAddTodo({ title, description, dueDate, tags: tags.split(',').map((tag) => tag.trim()) });
+    onClose();
   };
 
   return (
-    <div className="flex flex-col justify-start items-center bg-gray-300 min-h-screen">
-      <h1 className="text-4xl font-bold mb-6 mt-10">TODO LIST</h1>
-      <div className="w-3/4 md:w-1/2 flex items-center space-x-2">
-        <input
-          type="text"
-          placeholder="Search tasks..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
-        >
-          Add Todo
-        </button>
-      </div>
-      <div className="mt-10 w-full max-w-none">
-        <TodoList todos={currentTodos} onDelete={deleteTodo} />
-      </div>
+    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {/* Modal wrapper with explicit width */}
+      <div className="w-full max-w-[700px] bg-white rounded-lg shadow-xl">
+        <div className="p-6">
+          <Dialog.Title className="text-lg font-medium text-gray-900 text-center">
+            Add New To-Do
+          </Dialog.Title>
 
-      {/* Pagination controls */}
-      <div className="flex justify-center mt-6">
-        <ol className="flex justify-center gap-2 text-lg font-medium">
-          {/* Previous Page Button */}
-          <li>
+          <div className="mt-4 space-y-4">
+            {/* Title Input */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
+              <input
+                id="title"
+                type="text"
+                className={`w-full mt-1 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring focus:ring-purple-300 focus:outline-none px-3 py-2`}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+            </div>
+
+            {/* Description Input */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                id="description"
+                rows={3}
+                className={`w-full mt-1 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring focus:ring-purple-300 focus:outline-none px-3 py-2`}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+            </div>
+
+            {/* Due Date Input */}
+            <div>
+              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
+                Due Date
+              </label>
+              <input
+                id="dueDate"
+                type="date"
+                className={`w-full mt-1 border ${errors.dueDate ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring focus:ring-purple-300 focus:outline-none px-3 py-2`}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+              {errors.dueDate && <p className="text-sm text-red-500">{errors.dueDate}</p>}
+            </div>
+
+            {/* Tags Input */}
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
+                Tags (comma-separated)
+              </label>
+              <input
+                id="tags"
+                type="text"
+                className={`w-full mt-1 border ${errors.tags ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring focus:ring-purple-300 focus:outline-none px-3 py-2`}
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+              />
+              {errors.tags && <p className="text-sm text-red-500">{errors.tags}</p>}
+            </div>
+          </div>
+
+          {/* Modal Buttons */}
+          <div className="mt-6 flex justify-end space-x-3">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-900 p-3 hover:bg-gray-100"
+              className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
+              onClick={onClose}
             >
-              <span className="sr-only">Prev Page</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              Cancel
             </button>
-          </li>
-
-          {Array.from({ length: totalPages }, (_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => handlePageChange(index + 1)}
-                className={`block rounded-full border border-gray-300 bg-white p-3 text-center leading-8 text-gray-900 ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-          <li>
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-900 p-3 hover:bg-gray-100"
+              className="px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white"
+              onClick={handleAddTodo}
             >
-              <span className="sr-only">Next Page</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              Add To-Do
             </button>
-          </li>
-        </ol>
+          </div>
+        </div>
       </div>
-
-      {/* AddTodoModal */}
-      <AddTodoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAddTodo={addTodo}
-      />
-    </div>
+    </Dialog>
   );
 };
 
-export default Todoview;
+export default AddTodoModal;
